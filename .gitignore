@@ -41,3 +41,9 @@ example
 # generated native folders
 /ios
 /android
+
+# Pilot chat messages stored by the dev server
+.chat-data/
+
+Builds/
+*.apk

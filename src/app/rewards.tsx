@@ -19,7 +19,7 @@ import { type Reward, requestReward } from '@/lib/requests-api';
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 /**
- * Retailers: points earned from delivered orders, the rewards list (gifts by points), and their
+ * Retailers: points earned from RM-approved orders, the rewards list (gifts by points), and their
  * reward requests. A request goes to their distributor or RM, who marks the gift as given.
  */
 export default function RewardsScreen() {
@@ -51,7 +51,7 @@ export default function RewardsScreen() {
           )}
           {pendingOrderPoints > 0 ? (
             <Text style={styles.pending}>
-              +{formatNumber(pendingOrderPoints)} pts on the way from orders not yet delivered
+              +{formatNumber(pendingOrderPoints)} pts on the way from orders awaiting approval
             </Text>
           ) : null}
         </View>
@@ -59,8 +59,8 @@ export default function RewardsScreen() {
         <View style={styles.earn}>
           <MaterialIcons name="shopping-cart-checkout" size={20} color={Colors.barItemActive} />
           <Text style={styles.earnText}>
-            Earn points on every order (per unit): {ORDER_POINT_RATES}. Points are added when the order
-            is delivered.
+            Earn points on every order (per unit): {ORDER_POINT_RATES}. Points are added when the
+            Regional Manager approves the order.
           </Text>
         </View>
 

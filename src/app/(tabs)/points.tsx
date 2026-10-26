@@ -253,7 +253,7 @@ function StatusColumn({ label, value }: { label: string; value: number }) {
 }
 
 /**
- * Retailers: how far they are from the next reward, points on the way from undelivered orders,
+ * Retailers: how far they are from the next reward, points on the way from orders awaiting approval,
  * and how points are earned. Opens the Rewards screen.
  */
 function NextRewardCard({ remaining, pending }: { remaining: number; pending: number }) {
@@ -292,7 +292,7 @@ function NextRewardCard({ remaining, pending }: { remaining: number; pending: nu
       ) : null}
       {pending > 0 ? (
         <Text style={styles.nextPending}>
-          +{formatNumber(pending)} pts on the way from orders not yet delivered
+          +{formatNumber(pending)} pts on the way from orders awaiting approval
         </Text>
       ) : null}
       <Text style={styles.nextRates}>Points per unit ordered: {ORDER_POINT_RATES}</Text>

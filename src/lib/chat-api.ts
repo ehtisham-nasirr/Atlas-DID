@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 
 import { iso } from '@/lib/orders-api';
+import { readFileBytes } from '@/lib/read-file';
 import { supabase } from '@/lib/supabase';
 import { unwrap } from '@/lib/users-api';
 
@@ -116,14 +117,9 @@ export async function sendMessage(from: string, to: string, text: string, attach
 export async function uploadFile(picked: PickedFile): Promise<Attachment> {
   const ext = picked.name.includes('.') ? picked.name.split('.').pop() : '';
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext ? `.${ext}` : ''}`;
-  let body: File | FormData;
-  if (Platform.OS === 'web' && picked.file) {
-    body = picked.file;
-  } else {
-    // React Native uploads a local file from its uri inside a form.
-    body = new FormData();
-    body.append('file', { uri: picked.uri, name: picked.name, type: picked.type } as unknown as Blob);
-  }
+  // The file's raw bytes: Expo's fetch does not accept React Native's {uri} form parts.
+  const body: File | ArrayBuffer =
+    Platform.OS === 'web' && picked.file ? picked.file : await readFileBytes(picked.uri);
   const { error } = await supabase.storage
     .from(BUCKET)
     .upload(path, body, { contentType: picked.type, upsert: false });
@@ -132,6 +128,6 @@ export async function uploadFile(picked: PickedFile): Promise<Attachment> {
     url: fileUrl(path),
     name: picked.name,
     type: picked.type,
-    size: picked.file?.size ?? picked.size ?? 0,
+    size: picked.file?.size ?? picked.size ?? (body instanceof ArrayBuffer ? body.byteLength : 0),
   };
 }

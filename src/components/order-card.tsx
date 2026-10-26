@@ -93,9 +93,9 @@ export function OrderCard({
       </Text>
       {order.points > 0 && order.status !== 'rejected' ? (
         <Text style={styles.points}>
-          {order.status === 'delivered'
-            ? `Earned ${formatNumber(order.points)} pts`
-            : `+${formatNumber(order.points)} pts on delivery`}
+          {order.status === 'placed'
+            ? `+${formatNumber(order.points)} pts once approved`
+            : `Earned ${formatNumber(order.points)} pts`}
         </Text>
       ) : null}
       {order.status === 'placed' && !mine && order.rm !== viewer && (

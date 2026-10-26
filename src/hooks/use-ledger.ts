@@ -6,7 +6,7 @@ import { useRedemptions } from '@/hooks/use-requests';
 
 /**
  * The signed-in user's points ledger, matching the balance the database checks:
- * scans (mechanics) + delivered order points (retailers) + points received for requests the user
+ * scans (mechanics) + RM-approved order points (retailers) + points received for requests the user
  * paid - the user's own redemption and reward requests (unless rejected).
  */
 export function useLedger() {
@@ -17,17 +17,18 @@ export function useLedger() {
   const me = user?.phone;
 
   const myOrders = (orders ?? []).filter((o) => o.placedBy === me && o.points > 0);
-  const orderTransactions: Transaction[] = myOrders
-    .filter((o) => o.status === 'delivered')
-    .map((o) => ({
-      id: o.id,
-      title: `Order Points - ${o.id}`,
-      subtitle: `${o.items.reduce((n, i) => n + i.quantity, 0)} items delivered`,
-      note: 'Order Delivered',
-      type: 'received',
-      amount: o.points,
-      date: o.deliveredAt ?? o.at,
-    }));
+  // Points are earned as soon as the RM approves the order.
+  const approved = (o: (typeof myOrders)[number]) =>
+    o.status === 'approved' || o.status === 'dispatched' || o.status === 'delivered';
+  const orderTransactions: Transaction[] = myOrders.filter(approved).map((o) => ({
+    id: o.id,
+    title: `Order Points - ${o.id}`,
+    subtitle: `${o.items.reduce((n, i) => n + i.quantity, 0)} items approved`,
+    note: 'Order Approved',
+    type: 'received',
+    amount: o.points,
+    date: o.reviewedAt ?? o.at,
+  }));
 
   const redemptionTransactions = (redemptions ?? []).flatMap((r): Transaction[] => {
     if (r.from === me && r.status !== 'rejected') {
@@ -71,9 +72,9 @@ export function useLedger() {
     received,
     sent,
     remaining: received - sent,
-    /** Points from orders not yet delivered (retailers). */
+    /** Points from orders waiting for the RM's approval (retailers). */
     pendingOrderPoints: myOrders
-      .filter((o) => o.status !== 'delivered' && o.status !== 'rejected')
+      .filter((o) => o.status === 'placed')
       .reduce((s, o) => s + o.points, 0),
     /** True until the server data has loaded for the first time. */
     loading: redemptions === null || (user?.role === 'retailer' && orders === null),

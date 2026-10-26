@@ -23,7 +23,7 @@ export default function CartScreen() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState('');
   const entries = Object.entries(items);
-  // Retailers earn points for the order once it is delivered.
+  // Retailers earn points for the order once the RM approves it.
   const orderPoints =
     user?.role === 'retailer'
       ? entries.reduce((sum, [sku, q]) => sum + (productBySku(sku)?.orderPoints ?? 0) * q, 0)
@@ -41,7 +41,7 @@ export default function CartScreen() {
         'Order placed',
         `Your order ${order.id} has been sent to the Regional Manager.${
           order.points > 0
-            ? ` You will earn ${formatNumber(order.points)} pts when it is delivered.`
+            ? ` You will earn ${formatNumber(order.points)} pts when it is approved.`
             : ''
         }`
       );
@@ -93,7 +93,7 @@ export default function CartScreen() {
             </View>
             {orderPoints > 0 ? (
               <View style={[styles.summary, styles.pointsSummary]}>
-                <Text style={styles.summaryLabel}>Points on delivery</Text>
+                <Text style={styles.summaryLabel}>Points on approval</Text>
                 <Text style={[styles.summaryValue, styles.pointsValue]}>
                   +{formatNumber(orderPoints)} pts
                 </Text>

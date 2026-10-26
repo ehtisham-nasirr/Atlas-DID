@@ -13,7 +13,7 @@ import { useOrders } from '@/hooks/use-orders';
 import { confirmAction, notify } from '@/lib/dialogs';
 import { type Order, updateOrder } from '@/lib/orders-api';
 
-type Tab = 'pending' | 'open' | 'delivered';
+type Tab = 'open' | 'delivered';
 
 /**
  * Distributor: every order meant for them. Orders can only be dispatched once the RM has
@@ -27,13 +27,13 @@ export default function DeliveriesScreen() {
   // Updates made here show at once, before the next refresh from the server.
   const [updated, setUpdated] = useState<Record<string, Order>>({});
 
+  // Distributors only get orders once the RM has approved them.
   const mine = (orders ?? [])
     .map((o) => updated[o.id] ?? o)
-    .filter((o) => o.distributor === user?.phone);
-  const pending = mine.filter((o) => o.status === 'placed');
+    .filter((o) => o.distributor === user?.phone && o.status !== 'placed' && o.status !== 'rejected');
   const open = mine.filter((o) => o.status === 'approved' || o.status === 'dispatched');
   const done = mine.filter((o) => o.status === 'delivered');
-  const lists = { pending, open, delivered: done };
+  const lists = { open, delivered: done };
 
   const advance = (order: Order, action: 'dispatch' | 'deliver') => {
     if (!user) return;
@@ -65,7 +65,6 @@ export default function DeliveriesScreen() {
               value={tab}
               onChange={setTab}
               options={[
-                { value: 'pending', label: `Awaiting RM (${pending.length})` },
                 { value: 'open', label: `To Deliver (${open.length})` },
                 { value: 'delivered', label: `Delivered (${done.length})` },
               ]}
@@ -80,11 +79,9 @@ export default function DeliveriesScreen() {
             <View style={styles.empty}>
               <MaterialIcons name="local-shipping" size={52} color={Colors.surfaceDivider} />
               <Text style={styles.emptyText}>
-                {tab === 'pending'
-                  ? 'New orders waiting for the Regional Manager to approve will appear here.'
-                  : tab === 'open'
-                    ? 'Orders approved by the Regional Manager will appear here for delivery.'
-                    : 'Delivered orders will appear here.'}
+                {tab === 'open'
+                  ? 'Orders approved by the Regional Manager will appear here for delivery.'
+                  : 'Delivered orders will appear here.'}
               </Text>
             </View>
           )

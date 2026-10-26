@@ -50,7 +50,7 @@ export type Product = {
   points: number;
   /** Cash credited per QR scan, in PKR (kept for a cash ledger). */
   amount: number;
-  /** Points a retailer earns per unit ordered, credited when the order is delivered. */
+  /** Points a retailer earns per unit ordered, credited when the RM approves the order. */
   orderPoints: number;
 };
 

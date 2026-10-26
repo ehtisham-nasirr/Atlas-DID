@@ -26,7 +26,7 @@ export type Order = {
   status: OrderStatus;
   /** Sum of unitPrice × quantity, set on approval. */
   total?: number;
-  /** Points a retailer's order earns them, credited when it is delivered (0 for mechanics). */
+  /** Points a retailer's order earns them, credited when the RM approves it (0 for mechanics). */
   points: number;
   reviewedAt?: string;
   dispatchedAt?: string;
